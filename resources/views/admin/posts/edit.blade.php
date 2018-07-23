@@ -1,7 +1,7 @@
 @extends('template')
 
 @section('content')
-	<h1>Create New Post</h1>
+	<h1>Edit Post: {{ $post->title }}</h1>
 
 	@if($errors->any())
 		<ul class="alert">
@@ -11,18 +11,17 @@
 		</ul>
 	@endif
 
-	{!! Form::open(['route' => 'admin.posts.store', 'method' => 'post']) !!}
-		
+	{!! Form::model($post, ['route' => ['admin.posts.update', $post->id], 'method' => 'put']) !!}
+
 		@include('admin.posts._form')
 
 		<div class="form-group">
 			{!! Form::label('tags', 'Tags:', ['class' => 'control-label']) !!}
-			{!! Form::textarea('tags', null, ['class' => 'form-control']) !!}
-			}
+			{!! Form::textarea('tags', $post->tagList, ['class' => 'form-control']) !!}
 		</div>
 
 		<div class="form-group">
-			{!! Form::submit('Create Post', ['class' => 'btn btn-primary']) !!}
+			{!! Form::submit('Save Post', ['class' => 'btn btn-primary']) !!}
 		</div>
 
 	{!! Form::close() !!}
