@@ -53,6 +53,47 @@ class RegisterController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
+
+        try {
+            $validateData['password'] = bcrypt(array_get($validateData, 'password'));
+            $validateData['actiovation_code'] = str_random(30).time();
+            $user = app(User::class)->create($validateData);
+
+        } catch (\Excepetion $exception) {
+            logger()->error($exception);
+
+            return redirect()->back()->with('message', 'Impossível criar novo usuário.');
+        }
+
+        $user->notify(new UserRegisteredSuccesfully($user));
+
+        return redirect()->back()->with('message', 'Criado nova conta com sucesso. Por favor, verifue seu email e seu código de ativação.');
+    }
+
+    /**
+     * Activate the user with given activation code.
+     * @param string $activationCode
+     * @return string
+     */
+    public function activateUser(string $activationCode)
+    {
+        try {
+            $user = app(User::class)->where('activation_code', $activationCode)-first();
+            if (!$user)
+            {
+                return 'O código não é compatível com nenhum usuário.';
+            }
+            $user->status = 1;
+            $user->activation_code = null;
+            $user->save();
+            auth()->login($user);
+        } catch (\Excepetion $excepetion) {
+            logger()->error($excepetion);
+
+            return 'Oops! Algo deu errado.';
+        }
+
+        return redirect()->to('/home');
     }
 
     /**
@@ -68,5 +109,7 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+
+
     }
 }
