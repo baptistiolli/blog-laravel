@@ -12,7 +12,7 @@ class PostsTableSeeder extends Seeder
      */
     public function run()
     {
-        Post::truncate();
+        // Post::truncate();
 
         factory('Blog\Post', 20)->create();
     }
